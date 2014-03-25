@@ -87,8 +87,6 @@ def user_menu
   end
 end
 
-
-
 def manager_menu
   manager_choice = nil
   until manager_choice == 'm'
@@ -140,6 +138,8 @@ def manager_menu
     puts "What action would you like?"
     puts "(p) Enter a new product."
     puts "(c) Enter a new cashier."
+    puts "(t) View total sales for a given time period."
+    puts "(v) View each cashier's transaction history for a given time period."
     puts "(m) Return to the user menu."
     manager_choice = gets.chomp
     case manager_choice
@@ -147,6 +147,10 @@ def manager_menu
       new_product
     when 'c'
       new_cashier
+    when 't'
+      total_sales
+    when 'v'
+      cashier_history
     when 'm'
       puts "Goodbye, store manager."
     else
@@ -155,6 +159,66 @@ def manager_menu
     end
   end
   user_menu
+end
+
+def total_sales
+  system('clear')
+  puts '  ______________________________________________________________________
+  |.============[_F_E_D_E_R_A_L___R_E_S_E_R_V_E___N_O_T_E_]=============.|
+  ||%&%&%&%_    _        _ _ _   _ _  _ _ _     _       _    _  %&%&%&%&||
+  ||%&.-.&/||_||_ | ||\||||_| \ (_ ||\||_(_  /\|_ |\|V||_|)|/ |\ %&.-.&&||
+  ||&// |\ || ||_ \_/| ||||_|_/ ,_)|||||_,_) \/|  ||| ||_|\|\_|| &// |\%||
+  ||| | | |%               ,-----,-"____"-,-----,               %| | | |||
+  ||| | | |&% """"""""""  [    .-;"`___ `";-.    ]             &%| | | |||
+  ||&\===//                `)." ."`_.- `.  ".".(`  A 76355942 J  \\\\===/&||
+  ||&%"-"%/1                // ." /`     \    \\\\                  \%"-"%||
+  ||%&%&%/`   d8888b       // /   \  _  _;,    \\\\      .-"""-.  1 `&%&%%||
+  ||&%&%&    8P |) Yb     ;; (     > a  a| \    ;;    //A`Y A\\\\    &%&%&||
+  ||&%&%|    8b |) d8     || (    ,\   \ |  )   ||    ||.-"-.||    |%&%&||
+  ||%&%&|     Y8888P      ||  "--"/`  -- /-"    ||    \\\\_/~\_//    |&%&%||
+  ||%&%&|                 ||     |\`-.__/       ||     "-...-"     |&%&%||
+  ||%%%%|                 ||    /` |._ .|-.     ||                 |%&%&||
+  ||%&%&|  A 76355942 J  /;\ _."   \  } \  "-.  /;\                |%&%&||
+  ||&%.-;               (,  ".      \  } `\   \"  ,)   ,.,.,.,.,   ;-.%&||
+  ||%( | ) 1  """""""   _( \  ;...---------.;.; / )_ ```""""""" 1 ( | )%||
+  ||&%"-"==================\`------------------`/=================="-"%&||
+  ||%&JGS&%&%&%&%%&%&&&%&%%&)O N E  D O L L A R(%&%&%&%&%&%&%%&%&&&%&%%&||
+  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""`'
+  puts "\n\nEnter the starting date for which you want to view total sales."
+  start_date_input = gets.chomp
+  start_date = Date.parse start_date_input
+  puts "Enter the ending date for which you want to view total sales."
+  end_date_input = gets.chomp
+  end_date = Date.parse end_date_input
+  sales = TransactionItem.sales_over_period(start_date, end_date)
+  total = 0.0
+  sales.each { |sale| total += (sale.item_price_at_sale * sale.quantity) }
+  puts "The total sales over the period #{start_date.to_s} to #{end_date} was $#{sprintf('%.2f', total)}"
+  puts "Enter (a) to view total sales over another time period, or anything else to return to the main manager menu."
+  navigation_choice = gets.chomp
+  if navigation_choice == 'a'
+    total_sales
+  end
+end
+
+def cashier_history
+  system('clear')
+  puts "\n\nEnter the starting date for which you want to view cashier history."
+  start_date_input = gets.chomp
+  start_date = Date.parse start_date_input
+  puts "Enter the ending date for which you want to view cashier history."
+  end_date_input = gets.chomp
+  end_date = Date.parse end_date_input
+  puts "\nFor the time period #{start_date} to #{end_date}:\n"
+  Cashier.all.each do |cashier|
+    total_transactions = cashier.transactions.count{ |transaction| transaction.created_at > start_date && transaction.created_at < end_date }
+    puts "#{cashier.name}: #{total_transactions} transactions."
+  end
+  puts "\nEnter 'a' to view cashier history for another time period, or anything else to return to the main manager menu."
+  cashier_history_choice = gets.chomp
+  if cashier_history_choice == 'a'
+    cashier_history
+  end
 end
 
 def new_product
@@ -278,7 +342,7 @@ def new_sale(cashier, sale = nil)
         puts "That was not a valid product code. Please try again"
         new_sale(cashier, sale)
       else
-        sale_item = sale.transaction_items.create(:product_id => current_product.id)
+        sale_item = sale.transaction_items.create(:product_id => current_product.id, :item_price_at_sale => current_product.price)
         puts "Enter the quantity of #{current_product.name}: "
         quantity = gets.chomp.to_i
         sale_item.update(:quantity => quantity)
@@ -294,7 +358,7 @@ def new_sale(cashier, sale = nil)
       else
         sale_item = sale.transaction_items.find_by(:product_id => current_product.id)
         if sale_item.nil?
-          sale_item = sale.transaction_items.create(:product_id => current_product.id)
+          sale_item = sale.transaction_items.create(:product_id => current_product.id, :item_price_at_sale => current_product.price)
           quantity = 0
         else
           quantity = sale_item.quantity
