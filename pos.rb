@@ -47,7 +47,31 @@ def user_menu
   puts "\t\t*****************************"
   puts "\t\t* A * VERITABLE * P * O * S *"
   puts "\t\t*****************************\n\n"
-  puts "Just who do you think you are!?"
+  puts '                         oooo     oooo
+                       o$$"""$oo$$"""""$o
+                      $"      $$"      $$$$
+                     $"      ""        $$$$$o
+                     $                  $$$$$o
+                    $                    $$$$$$
+                   $"                    "$$$$$
+                   $                      $$$$$$
+                  $"                      $$$$$$
+                  $                        $$$$$
+                  $                       o$$$$$
+                  $                       $$$$$$
+                  $                      o$$$$$$
+               ooo                      o$$$$$$$
+       ooo$$$$"" $                   oo$$$$$""""""oooo
+    oo"$$$$$$$ oo"" oooooooooooooooo$$"""           o$$"oo
+   o"  $$$$$$$ "$o           oo$$$$$"               $$$$o"$o
+  $    $$$$$$$  " ""oooooooooo$$$$"         o$      $$$$$$o"$
+ o     $$""               oo$$$"           o$$     o$$$$$$$o$
+ "o    $$             oo$$$$""            o$$$   o$$$$$$$$$$$
+  "$o  $$$oo                           $$$$$$$   ooo$$$$$""
+    "$$oooo ""            ooo$$$$      $$$$$$$$$$$$$$""
+        """"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$""""""
+                  """"""""""""""""""'
+  puts "\nJust who do you think you are!?"
   puts "(m) 'Why I'm the manager!'"
   puts "(c) 'Just a lowly cashier."
   puts "(x) 'Who cares who I am; get me out of here!"
@@ -69,8 +93,50 @@ def manager_menu
   manager_choice = nil
   until manager_choice == 'm'
     system('clear')
-    puts "@@@@@@@@@@@@@@@@@@"
-    puts ""
+    puts "@@@@@@@@@@@@@@@@"
+    puts "@ Manager Menu @"
+    puts "@@@@@@@@@@@@@@@@\n"
+    puts "                                                 #    #
+                                            %%% ##   ##
+                                         %%%%% ###%%###
+                                        %%%%% ### %%% #
+                                      %%%%%% ### %%% ###
+                                       %%%% ## %% #######
+                                      %%%%% # %% #O#####
+                                    %%%%%% # % #########
+                                   %%%%% ##### #########
+                         ###        %% ####### #########
+                %%% ############    ########### ########
+             %%%% ############################### #######
+           %%%%% ################################## ######
+         %%%%%% #################################### #C###
+        %%%%%% #####################################  ###
+        %%%%% #######################################
+       %%%%%% ########################################
+    % %%%%%%% ########################################
+     %%%%%%%%% #######################################
+    %%%%%%%%%% ########################################
+ %%% %%%%%%%%   ###### ################################
+   %%%%%%%%      ###### #################### ##########
+% %%%%%%%%        ####### ########### ###### ##########
+ %%%%%%%%%         #######  ########### ###### ########
+%%%%%%%%%%          ##### ###  ######### ####### ######
+ %%%%%%%%%%          #### ##               ####### ####
+ %%%%%%%%%%%           ## #                  ##### ###
+  %%  %% % %%         # ##                      ## ###
+    %   %    %        # ###                      # ###
+                       # ###                     ## ###
+                       # ###                     ## ###
+                       # ####                   #### ##
+                      ### ###                  ##### ###
+                     ####  ###                 ####   ##
+                    #####   ###                 ##    ##
+                   #####    ####                      ###
+                    ##        ###                     ###
+                               ####                     ##
+                                ####                    ###
+                                                        ####
+                                                         ##"
     puts "What action would you like?"
     puts "(p) Enter a new product."
     puts "(c) Enter a new cashier."
@@ -118,7 +184,28 @@ def cashier_login
   puts "\t\t$$$$$$$$$$$$$$$$$$$"
   puts "\t\t$ CASHIER $ LOGIN $"
   puts "\t\t$$$$$$$$$$$$$$$$$$$\n\n"
-  puts "Howdy, valued employee! Please your employee id below. If you have forgotten your id, enter 'forgetful' to display the employee ids."
+  puts '                /||\
+                ||||
+                ||||
+                |||| /|\
+           /|\  |||| |||
+           |||  |||| |||
+           |||  |||| |||
+           |||  |||| d||
+           |||  |||||||/
+           ||b._||||~~"
+           \||||||||
+            "~~~||||
+                ||||
+                ||||
+~~~~~~~~~~~~~~~~||||~~~~~~~~~~~~~~
+  \/..__..--  . |||| \/  .  ..
+\/         \/ \/    \/
+        .  \/              \/    .
+. \/             .   \/     .
+   __...--..__..__       .     \/
+\/  .   .    \/     \/    __..--..'
+  puts "\nHowdy, valued employee! Please your employee id below. If you have forgotten your id, enter 'forgetful' to display the employee ids."
   cashier_id = gets.chomp
   if cashier_id == 'forgetful'
     display_cashiers
@@ -173,6 +260,7 @@ def new_sale(cashier, sale = nil)
     system('clear')
     if !sale.nil?
       sale.reload
+      puts "Your current bill is: \n"
       show_receipt(cashier, sale)
     end
 
@@ -218,6 +306,8 @@ def new_sale(cashier, sale = nil)
     end
 
   end
+  system('clear')
+  puts "Here is your final receipt: \n"
   show_receipt(cashier, sale)
   gets
 end
@@ -228,7 +318,7 @@ def list_products
 end
 
 def show_receipt(cashier, sale)
-  system('clear')
+  # system('clear')
   puts "\t\t*****************"
   puts "\t\t***  RECEIPT  ***"
   puts "\t\t*   Sale No: #{sale.id}  *"
@@ -240,7 +330,7 @@ def show_receipt(cashier, sale)
     puts "#{item.product.name}: x#{item.quantity} ---- $#{sprintf('%.2f', (item.product.price * item.quantity))}"
     total += item.product.price * item.quantity
   end
-  puts "\t\tTotal: \t\t$#{sprintf('%.2f', total)}"
+  puts "\t\tTotal: \t$#{sprintf('%.2f', total)}"
 end
 
 
