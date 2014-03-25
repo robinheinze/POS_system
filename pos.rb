@@ -141,6 +141,7 @@ def manager_menu
     puts "(t) View total sales for a given time period."
     puts "(v) View each cashier's transaction history for a given time period."
     puts "(s) View sales rates for our products."
+    puts "(r) View return rates for our products"
     puts "(m) Return to the user menu."
     manager_choice = gets.chomp
     case manager_choice
@@ -154,6 +155,8 @@ def manager_menu
       cashier_history
     when 's'
       sales_rates
+    when 'r'
+      return_rates
     when 'm'
       puts "Goodbye, store manager."
     else
@@ -193,6 +196,44 @@ def sales_rates
   Product.all.each do |product|
     total_sales = product.transaction_items.sum('quantity')
     puts "Product number #{product.id}. #{product.name}: #{total_sales} units sold."
+  end
+
+  puts "\nPress enter to return to the manager menu."
+  gets
+end
+
+def return_rates
+  system('clear')
+  puts "\n"
+  puts '                          /|                        /|
+                          | \           __ _ _     / ;
+                    ___    \ \   _.-"-" `~"\  `"--` /
+                _.-`   ""-._\ ""   ._,"  ; "\"--._./
+            _.-`       \./    "-""", )  ~"  |
+           / ,- .`          ,     `  `o.  ;  )
+           \ ;/       `                 ;   /
+            |/        `      |      \   `   |
+            /        |             J."\  ,  |
+           "         :       \   .`  : | ,. _)
+           |         |     /     f |  |`--"--`
+            \_        \    \    / _/  |
+             \ "-._  _.|   (   j/; -`/
+              \  | "/  (   |   /,    |
+               | \  |  /\  |\_///   /
+               \ /   \ | \  \  /   /
+                ||    \ \|  |  |  |
+                ||     \ \  |  | /
+                |\      |_|/   ||
+                L \       ||   ||
+                `"`       |\   |\
+                          ( \. \ `.
+                          |_ _\|_ _\
+                            "    "'
+  puts "\nHere are the return figures for all of our fabulous products.\n\n"
+
+  Product.all.each do |product|
+    total_returns = product.transaction_items.sum('returned_quantity')
+    puts "Product number #{product.id}. #{product.name}: #{total_returns} units returned."
   end
 
   puts "\nPress enter to return to the manager menu."
