@@ -140,6 +140,7 @@ def manager_menu
     puts "(c) Enter a new cashier."
     puts "(t) View total sales for a given time period."
     puts "(v) View each cashier's transaction history for a given time period."
+    puts "(s) View sales rates for our products."
     puts "(m) Return to the user menu."
     manager_choice = gets.chomp
     case manager_choice
@@ -151,6 +152,8 @@ def manager_menu
       total_sales
     when 'v'
       cashier_history
+    when 's'
+      sales_rates
     when 'm'
       puts "Goodbye, store manager."
     else
@@ -159,6 +162,41 @@ def manager_menu
     end
   end
   user_menu
+end
+
+def sales_rates
+  system('clear')
+
+  puts "\n                    **
+                  '**'''
+                  .'
+                 **    .**
+                  '*.***''
+          ..        ***.
+         ***.       *****
+         **''.      ***'*
+         *' .*.... .***  *
+         *  ***********...''
+        .' ****************.
+        '   ******************..
+            *****'*************..
+          .**'**' ***************'
+           ''***   '''************
+             **''.    '**  *'*****.
+              '* '     **  *  *****
+                *.     '*  * ******.
+                 *.     **  ****'
+                         * '**'
+                         *"
+  puts "\nHere are the sales figures for all of our fabulous products.\n\n"
+
+  Product.all.each do |product|
+    total_sales = product.transaction_items.sum('quantity')
+    puts "Product number #{product.id}. #{product.name}: #{total_sales} units sold."
+  end
+
+  puts "\nPress enter to return to the manager menu."
+  gets
 end
 
 def total_sales
