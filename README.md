@@ -14,7 +14,7 @@ DONE * As a store manager, I want to see the total amount of sales for a date ra
 
 DONE * As a manager, I want to see number of customers each cashier has checked out in a date range of my choosing, so that I can see who is the most efficient.
 
-* As a customer, I want to be able to return items, so that I can bring back things I don't want.
+DONE * As a customer, I want to be able to return items, so that I can bring back things I don't want.
 
 * As a store manager, I want to see which products are most popular, so I can order more of them.
 

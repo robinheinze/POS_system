@@ -192,7 +192,7 @@ def total_sales
   end_date = Date.parse end_date_input
   sales = TransactionItem.sales_over_period(start_date, end_date)
   total = 0.0
-  sales.each { |sale| total += (sale.item_price_at_sale * sale.quantity) }
+  sales.each { |sale| total += (sale.item_price_at_sale * (sale.quantity - sale.returned_quantity)) }
   puts "The total sales over the period #{start_date.to_s} to #{end_date} was $#{sprintf('%.2f', total)}"
   puts "Enter (a) to view total sales over another time period, or anything else to return to the main manager menu."
   navigation_choice = gets.chomp
@@ -210,10 +210,12 @@ def cashier_history
   end_date_input = gets.chomp
   end_date = Date.parse end_date_input
   puts "\nFor the time period #{start_date} to #{end_date}:\n"
+
   Cashier.all.each do |cashier|
     total_transactions = cashier.transactions.count{ |transaction| transaction.created_at > start_date && transaction.created_at < end_date }
     puts "#{cashier.name}: #{total_transactions} transactions."
   end
+
   puts "\nEnter 'a' to view cashier history for another time period, or anything else to return to the main manager menu."
   cashier_history_choice = gets.chomp
   if cashier_history_choice == 'a'
@@ -301,11 +303,14 @@ def cashier_menu(cashier)
     puts "\t\t$ Cashier: #{cashier.name} $"
     puts "\t\t$$$$$$$$$$$$$$$$$$$$$$$$$\n\n"
     puts "Enter (n) to make a new sale."
+    puts "Enter (r) to process a return"
     puts "Enter (l) to logout."
     menu_choice = gets.chomp
     case menu_choice
     when 'n'
       new_sale(cashier)
+    when 'r'
+      process_return(cashier)
     when 'l'
       puts "Adios, valued employee pardner!"
     else
@@ -313,6 +318,44 @@ def cashier_menu(cashier)
     end
   end
   user_menu
+end
+
+def process_return(cashier)
+  puts "Enter the transaction ID for which you will be processing a return. If you do not know the id, tough noogies."
+  transaction_id = gets.chomp.to_i
+  finished = false
+  begin
+    sale = Transaction.find_by!(:id => transaction_id)
+  rescue
+    puts "That was not a valid transaction id. Please try again."
+    process_return(cashier)
+  else
+    until finished
+      show_receipt(sale)
+      puts "Enter the product code of the item being returned"
+      product_id = gets.chomp.to_i
+      item_to_return = sale.transaction_items.find_by(:product_id => product_id)
+      ask_again = true
+      while ask_again
+        puts "Enter the qty to return"
+        qty = gets.chomp.to_f
+        if qty <= item_to_return.quantity
+          ask_again = false
+          item_to_return.update(:returned_quantity => qty)
+          item_to_return.transaction.update(:return_flag => true)
+        end
+      end
+      sale.reload
+      puts "Product #{product_id} was successfully returned from transaction #{transaction_id}"
+      show_receipt(sale)
+      puts "Press 'a' to return another product from this transaction or any other key to return to the menu"
+      user_choice = gets.chomp
+      system('clear')
+      if user_choice != 'a'
+        finished = true
+      end
+    end
+  end
 end
 
 def new_sale(cashier, sale = nil)
@@ -325,7 +368,7 @@ def new_sale(cashier, sale = nil)
     if !sale.nil?
       sale.reload
       puts "Your current bill is: \n"
-      show_receipt(cashier, sale)
+      show_receipt(sale)
     end
 
     puts "\nEnter a product number to add it to the sale, or 'p' to list products."
@@ -340,7 +383,7 @@ def new_sale(cashier, sale = nil)
         current_product = Product.find_by! id: sale_option
       rescue
         puts "That was not a valid product code. Please try again"
-        new_sale(cashier, sale)
+        new_sale(sale)
       else
         sale_item = sale.transaction_items.create(:product_id => current_product.id, :item_price_at_sale => current_product.price)
         puts "Enter the quantity of #{current_product.name}: "
@@ -372,7 +415,7 @@ def new_sale(cashier, sale = nil)
   end
   system('clear')
   puts "Here is your final receipt: \n"
-  show_receipt(cashier, sale)
+  show_receipt(sale)
   gets
 end
 
@@ -381,17 +424,30 @@ def list_products
   products.each { |product| puts "ID: #{product.id}, #{product.name}, $#{product.price}/unit"}
 end
 
-def show_receipt(cashier, sale)
-  # system('clear')
+def show_receipt(sale)
   puts "\t\t*****************"
   puts "\t\t***  RECEIPT  ***"
   puts "\t\t*   Sale No: #{sale.id}  *"
+  puts "\t\t*   Sales Associate: #{sale.cashier.name}  *"
+
   puts "\t\t*****************\n\n"
+
+  if sale.return_flag
+    puts "Modified Receipt:"
+    line_items = sale.transaction_items.order(:id)
+    total = 0.00
+    line_items.each do |item|
+      puts "No.#{item.product.id}, #{item.product.name}: x#{item.quantity - item.returned_quantity} ---- $#{sprintf('%.2f', (item.item_price_at_sale * (item.quantity - item.returned_quantity)))}"
+      total += item.product.price * (item.quantity - item.returned_quantity)
+    end
+    puts "\t\tTotal: \t$#{sprintf('%.2f', total)}"
+    puts "\n\nOriginal Receipt: "
+  end
 
   line_items = sale.transaction_items.order(:id)
   total = 0.00
   line_items.each do |item|
-    puts "#{item.product.name}: x#{item.quantity} ---- $#{sprintf('%.2f', (item.product.price * item.quantity))}"
+    puts "No.#{item.product.id}, #{item.product.name}: x#{item.quantity} ---- $#{sprintf('%.2f', (item.item_price_at_sale * item.quantity))}"
     total += item.product.price * item.quantity
   end
   puts "\t\tTotal: \t$#{sprintf('%.2f', total)}"
