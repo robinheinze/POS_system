@@ -289,8 +289,7 @@ def cashier_history
   puts "\nFor the time period #{start_date} to #{end_date}:\n"
 
   Cashier.all.each do |cashier|
-    total_transactions = cashier.transactions.count{ |transaction| transaction.created_at > start_date && transaction.created_at < end_date }
-    puts "#{cashier.name}: #{total_transactions} transactions."
+    puts "#{cashier.name}: #{cashier.total_transactions} transactions."
   end
 
   puts "\nEnter 'a' to view cashier history for another time period, or anything else to return to the main manager menu."
