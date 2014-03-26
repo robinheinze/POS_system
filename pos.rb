@@ -194,7 +194,7 @@ def sales_rates
   puts "\nHere are the sales figures for all of our fabulous products.\n\n"
 
   Product.all.each do |product|
-    total_sales = product.transaction_items.sum('quantity')
+    total_sales = product.total_quantity
     puts "Product number #{product.id}. #{product.name}: #{total_sales} units sold."
   end
 
@@ -232,7 +232,7 @@ def return_rates
   puts "\nHere are the return figures for all of our fabulous products.\n\n"
 
   Product.all.each do |product|
-    total_returns = product.transaction_items.sum('returned_quantity')
+    total_returns = product.total_returned
     puts "Product number #{product.id}. #{product.name}: #{total_returns} units returned."
   end
 

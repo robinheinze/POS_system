@@ -5,4 +5,8 @@ class Product < ActiveRecord::Base
   def total_quantity
   	transaction_items.sum('quantity')
   end
+
+  def total_returned
+  	transaction_items.sum('returned_quantity')
+  end
 end
