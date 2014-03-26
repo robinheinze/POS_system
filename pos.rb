@@ -269,9 +269,7 @@ def total_sales
   puts "Enter the ending date for which you want to view total sales."
   end_date_input = gets.chomp
   end_date = Date.parse end_date_input
-  sales = TransactionItem.sales_over_period(start_date, end_date)
-  total = 0.0
-  sales.each { |sale| total += (sale.item_price_at_sale * (sale.quantity - sale.returned_quantity)) }
+  total = TransactionItem.sales_over_period(start_date, end_date)
   puts "The total sales over the period #{start_date.to_s} to #{end_date} was $#{sprintf('%.2f', total)}"
   puts "Enter (a) to view total sales over another time period, or anything else to return to the main manager menu."
   navigation_choice = gets.chomp
